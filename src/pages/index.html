@@ -6,43 +6,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Display</title>
     <link rel="stylesheet" href="./style.css">
+    <style>
+        /* CSS for the process indicator */
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid #3498db;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 1.5s linear infinite;
+            display: none;
+            /* Initially hidden */
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 
 <body>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="xmlFile">Upload XML File:</label>
+        <input type="file" id="xmlFile" name="xmlFile" accept=".xml">
+        <button type="button" onclick="uploadFile()">Submit</button>
+    </form>
+
+    <!-- Process indicator -->
+    <div class="loader" id="loader"></div>
+
     <section class="workouts" id="workouts"></section>
+
     <script>
-        const healthData = fetch('/xml-to-json')
-            .then(response => response.json())
-            .then(data => {
-                const workouts = data.Workout;
-                const workoutList = document.createElement('div');
-                document.getElementById('workouts').appendChild(workoutList);
+        function uploadFile() {
+            const fileInput = document.getElementById('xmlFile');
+            const file = fileInput.files[0];
 
-                workouts.forEach(workout => {
-                    const workoutItem = document.createElement('div');
-                    workoutItem.classList.add('workout-item');
+            if (file) {
+                // Hide the form and show the loader
+                document.getElementById('uploadForm').style.display = 'none';
+                document.getElementById('loader').style.display = 'block';
 
-                    const workoutTitle = document.createElement('h2');
-                    workoutItem.innerHTML = workout.$.sourceName;
-                    workoutTitle.classList.add('workout-title');
-                    workoutList.appendChild(workoutItem);
+                const formData = new FormData();
+                formData.append('xmlFile', file);
 
-                    const workoutDuration = document.createElement('div');
-                    workoutDuration.classList.add('workout-data');
-                    workoutDuration.innerHTML = `Duration: ${parseFloat(workout.$.duration).toFixed(2)} ${workout.$.durationUnit}`;
-                    workoutItem.appendChild(workoutDuration);
+                fetch('/xml-to-json', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const workouts = data.HealthData.Workout;
+                        const workoutList = document.createElement('div');
+                        document.getElementById('workouts').appendChild(workoutList);
 
-                    const workoutCalories = document.createElement('div');
-                    workoutCalories.classList.add('workout-data');
-                    workoutCalories.innerHTML = `Calories burned: ${parseFloat(workout.WorkoutStatistics[0].$.sum).toFixed(2)} ${workout.WorkoutStatistics[0].$.unit}`;
-                    workoutItem.appendChild(workoutCalories);
+                        workouts.forEach(workout => {
+                            const workoutItem = document.createElement('div');
+                            workoutItem.classList.add('workout-item');
 
-                    const workoutDistance = document.createElement('div');
-                    workoutDistance.classList.add('workout-data');
-                    workoutDistance.innerHTML = `Length: ${parseFloat(workout.WorkoutStatistics[1].$.sum).toFixed(2)} ${workout.WorkoutStatistics[1].$.unit}`;
-                    workoutItem.appendChild(workoutDistance);
-                });
-            });
+                            const workoutTitle = document.createElement('h2');
+                            workoutItem.innerHTML = workout.$.sourceName;
+                            workoutTitle.classList.add('workout-title');
+                            workoutList.appendChild(workoutItem);
+
+                            const workoutDuration = document.createElement('div');
+                            workoutDuration.classList.add('workout-data');
+                            workoutDuration.innerHTML = `Duration: ${parseFloat(workout.$.duration).toFixed(2)} ${workout.$.durationUnit}`;
+                            workoutItem.appendChild(workoutDuration);
+
+                            const workoutCalories = document.createElement('div');
+                            workoutCalories.classList.add('workout-data');
+                            workoutCalories.innerHTML = `Calories burned: ${parseFloat(workout.WorkoutStatistics[0].$.sum).toFixed(2)} ${workout.WorkoutStatistics[0].$.unit}`;
+                            workoutItem.appendChild(workoutCalories);
+
+                            const workoutDistance = document.createElement('div');
+                            workoutDistance.classList.add('workout-data');
+                            workoutDistance.innerHTML = `Length: ${parseFloat(workout.WorkoutStatistics[1].$.sum).toFixed(2)} ${workout.WorkoutStatistics[1].$.unit}`;
+                            workoutItem.appendChild(workoutDistance);
+                        })
+                    })
+                    .catch(error => console.error('Error uploading file:', error))
+                    .finally(() => {
+                        // Show the form and hide the loader after processing
+                        document.getElementById('uploadForm').style.display = 'none';
+                        document.getElementById('loader').style.display = 'none';
+                    });
+            } else {
+                console.error('No file selected');
+            }
+        }
     </script>
 </body>
 

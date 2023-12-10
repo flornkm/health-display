@@ -7,5 +7,6 @@ const router = Router()
 
 router.use("/", express.static(path.join("./src/pages")))
 router.use("/xml-to-json", converter)
+router.post("/xml-to-json", converter)
 
 export { router }
