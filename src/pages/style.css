@@ -47,12 +47,20 @@ body {
     display: none;
 }
 
+.loader-wrapper::after {
+    content: 'Loading...';
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
 .loader {
     height: 100%;
     width: 100%;
     border-radius: 1000px;
     background: linear-gradient(to right, #FF244B, #FF4C6C);
-    transition: all 0.3s ease-in-out;
+    transition: all 0.05s ease-in-out;
 }
 
 @keyframes spin {

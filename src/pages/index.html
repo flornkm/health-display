@@ -88,10 +88,9 @@
 
         function uploadFile(file) {
             if (file) {
-                // Show the loader at 50% immediately after file upload
                 document.getElementById('uploadDrop').style.display = 'none';
                 document.getElementById('loader-wrapper').style.display = 'block';
-                document.getElementById('loader').style.width = '50%';
+                document.getElementById('loader').style.maxWidth = '0%';
 
                 const formData = new FormData();
                 formData.append('xmlFile', file);
@@ -146,10 +145,15 @@
                     }
                 };
 
+                xhr.upload.addEventListener('load', (event) => {
+                    document.getElementById('loader').style.maxWidth = '20%';
+                });
+
                 // Use the progress event to update the progress bar with chunks
-                xhr.upload.addEventListener('progress', (event) => {
+                xhr.addEventListener('progress', (event) => {
                     if (event.lengthComputable) {
-                        const progress = (event.loaded / event.total) * 50; // Start at 50%
+                        console.log(event.loaded, event.total);
+                        const progress = (event.loaded / event.total) * 100; // Multiply by 100 for percentage
                         document.getElementById('loader').style.maxWidth = `${progress}%`;
                     }
                 });
