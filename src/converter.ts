@@ -33,8 +33,6 @@ converter.get("/", async (req, res) => {
 })
 
 converter.post("/xml-to-json", upload.single("xmlFile"), async (req, res) => {
-  console.log(req.file)
-
   try {
     if (!req.file) {
       return res.status(400).send("No file uploaded.")

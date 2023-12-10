@@ -6,29 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Display</title>
     <link rel="stylesheet" href="./style.css">
-    <style>
-        /* CSS for the process indicator */
-        .loader {
-            border: 16px solid #f3f3f3;
-            border-top: 16px solid #3498db;
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            animation: spin 1.5s linear infinite;
-            display: none;
-            /* Initially hidden */
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -39,7 +16,9 @@
     </form>
 
     <!-- Process indicator -->
-    <div class="loader" id="loader"></div>
+    <div class="loader-wrapper" id="loader">
+        <div class="loader"></div>
+    </div>
 
     <section class="workouts" id="workouts"></section>
 

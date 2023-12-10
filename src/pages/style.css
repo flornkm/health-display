@@ -4,10 +4,11 @@ body {
 
 .workouts {
     max-width: 650px;
+    width: 100%;
     margin: 0 auto;
 }
 
-.workouts > div {
+.workouts>div {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -30,4 +31,33 @@ body {
 .workout-item>* {
     font-size: 1rem;
     font-weight: 400;
+}
+
+.loader-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* CSS for the process indicator */
+.loader {
+    border: 1rem solid #f3f3f3;
+    border-top: 1rem solid #000000;
+    border-radius: 50%;
+    width: 112px;
+    height: 112px;
+    animation: spin 1.5s linear infinite;
+    display: none;
+    /* Initially hidden */
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
