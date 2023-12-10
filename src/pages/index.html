@@ -57,20 +57,17 @@
                     </linearGradient>
                 </defs>
             </svg>
-
-
             <p>Drop Health Kit Export here</p>
         </div>
     </div>
 
     <form id="uploadForm" enctype="multipart/form-data">
-        <!-- Hidden file input -->
         <input type="file" id="xmlFile" name="xmlFile" accept=".xml" style="display: none">
     </form>
 
-    <!-- Process indicator -->
-    <div class="loader-wrapper" id="loader">
-        <div class="loader"></div>
+    <div class="loader-wrapper" id="loader-wrapper">
+        <div class="loader" id="loader">
+        </div>
     </div>
 
     <section class="workouts" id="workouts"></section>
@@ -86,67 +83,79 @@
             document.getElementById('uploadDrop').classList.remove('hover');
 
             const file = event.dataTransfer.files[0];
-            handleFile(file);
+            uploadFile(file);
         }
 
-        function uploadFile() {
-            const fileInput = document.getElementById('xmlFile');
-            const file = fileInput.files[0];
-
-            handleFile(file);
-        }
-
-        function handleFile(file) {
+        function uploadFile(file) {
             if (file) {
-                // Hide the drop area and show the loader
+                // Show the loader at 50% immediately after file upload
                 document.getElementById('uploadDrop').style.display = 'none';
-                document.getElementById('loader').style.display = 'block';
+                document.getElementById('loader-wrapper').style.display = 'block';
+                document.getElementById('loader').style.width = '50%';
 
                 const formData = new FormData();
                 formData.append('xmlFile', file);
 
-                fetch('/xml-to-json', {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        const workouts = data.HealthData.Workout;
-                        const workoutList = document.createElement('div');
-                        document.getElementById('workouts').appendChild(workoutList);
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/xml-to-json', true);
 
-                        workouts.forEach(workout => {
-                            const workoutItem = document.createElement('div');
-                            workoutItem.classList.add('workout-item');
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            // Parse the JSON response
+                            const data = JSON.parse(xhr.responseText);
 
-                            const workoutTitle = document.createElement('h2');
-                            workoutItem.innerHTML = workout.$.sourceName;
-                            workoutTitle.classList.add('workout-title');
-                            workoutList.appendChild(workoutItem);
+                            document.getElementById('loader-wrapper').style.display = 'none';
 
-                            const workoutDuration = document.createElement('div');
-                            workoutDuration.classList.add('workout-data');
-                            workoutDuration.innerHTML = `Duration: ${parseFloat(workout.$.duration).toFixed(2)} ${workout.$.durationUnit}`;
-                            workoutItem.appendChild(workoutDuration);
+                            // Process the data and update the UI
+                            const workouts = data.HealthData.Workout;
+                            const workoutList = document.getElementById('workouts');
+                            workoutList.innerHTML = '';
 
-                            const workoutCalories = document.createElement('div');
-                            workoutCalories.classList.add('workout-data');
-                            workoutCalories.innerHTML = `Calories burned: ${parseFloat(workout.WorkoutStatistics[0].$.sum).toFixed(2)} ${workout.WorkoutStatistics[0].$.unit}`;
-                            workoutItem.appendChild(workoutCalories);
+                            workouts.forEach(workout => {
+                                const workoutItem = document.createElement('div');
+                                workoutItem.classList.add('workout-item');
 
-                            const workoutDistance = document.createElement('div');
-                            workoutDistance.classList.add('workout-data');
-                            workoutDistance.innerHTML = `Length: ${parseFloat(workout.WorkoutStatistics[1].$.sum).toFixed(2)} ${workout.WorkoutStatistics[1].$.unit}`;
-                            workoutItem.appendChild(workoutDistance);
-                        })
-                    })
-                    .catch(error => console.error('Error uploading file:', error))
-                    .finally(() => {
-                        // Show the form and hide the loader after processing
-                        document.getElementById('uploadForm').style.display = 'block';
-                        document.getElementById('loader').style.display = 'none';
-                    })
-                    .catch(error => console.error('Error uploading file:', error));
+                                const workoutTitle = document.createElement('h2');
+                                workoutTitle.innerHTML = workout.$.sourceName;
+                                workoutTitle.classList.add('workout-title');
+                                workoutItem.appendChild(workoutTitle);
+
+                                const workoutDuration = document.createElement('div');
+                                workoutDuration.classList.add('workout-data');
+                                workoutDuration.innerHTML = `Duration: ${parseFloat(workout.$.duration).toFixed(2)} ${workout.$.durationUnit}`;
+                                workoutItem.appendChild(workoutDuration);
+
+                                const workoutCalories = document.createElement('div');
+                                workoutCalories.classList.add('workout-data');
+                                workoutCalories.innerHTML = `Calories burned: ${parseFloat(workout.WorkoutStatistics[0].$.sum).toFixed(2)} ${workout.WorkoutStatistics[0].$.unit}`;
+                                workoutItem.appendChild(workoutCalories);
+
+                                const workoutDistance = document.createElement('div');
+                                workoutDistance.classList.add('workout-data');
+                                workoutDistance.innerHTML = `Length: ${parseFloat(workout.WorkoutStatistics[1].$.sum).toFixed(2)} ${workout.WorkoutStatistics[1].$.unit}`;
+                                workoutItem.appendChild(workoutDistance);
+
+                                workoutList.appendChild(workoutItem);
+                            });
+
+                            document.getElementById('uploadForm').style.display = 'none';
+                        } else {
+                            console.error('Error uploading file:', xhr.statusText);
+                        }
+                    }
+                };
+
+                // Use the progress event to update the progress bar with chunks
+                xhr.upload.addEventListener('progress', (event) => {
+                    if (event.lengthComputable) {
+                        const progress = (event.loaded / event.total) * 50; // Start at 50%
+                        document.getElementById('loader').style.maxWidth = `${progress}%`;
+                    }
+                });
+
+                // Send the file data
+                xhr.send(formData);
             } else {
                 console.error('No file selected');
             }
