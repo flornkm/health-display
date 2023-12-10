@@ -9,10 +9,63 @@
 </head>
 
 <body>
+    <div id="uploadDrop" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+        <div class="upload-info">
+            <svg class="upload-file" width="360" height="423" viewBox="0 0 360 423" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_d_2070_365)">
+                    <path
+                        d="M52 97.44C52 63.5076 79.5076 36 113.44 36H287.52C298.831 36 308 45.1692 308 56.48V335.52C308 346.831 298.831 356 287.52 356H72.48C61.1692 356 52 346.831 52 335.52V97.44Z"
+                        fill="url(#paint0_linear_2070_365)" />
+                    <path
+                        d="M113.44 37.28H287.52C298.124 37.28 306.72 45.8761 306.72 56.48V335.52C306.72 346.124 298.124 354.72 287.52 354.72H72.48C61.8761 354.72 53.28 346.124 53.28 335.52V97.44C53.28 64.2146 80.2146 37.28 113.44 37.28Z"
+                        stroke="#D1D5DB" stroke-width="2.56" />
+                    <path
+                        d="M185.8 228.12C182.512 231.113 177.488 231.113 174.2 228.12V228.12C153.6 209.44 140 197.08 140 182C140 169.64 149.68 160 162 160C168.96 160 175.64 163.24 180 168.32C184.36 163.24 191.04 160 198 160C210.32 160 220 169.64 220 182C220 197.08 206.4 209.44 185.8 228.12V228.12Z"
+                        fill="url(#paint1_linear_2070_365)" />
+                    <path
+                        d="M113.44 37.28H132.64V71.84C132.64 96.5824 112.582 116.64 87.84 116.64H53.28V97.44C53.28 64.2146 80.2145 37.28 113.44 37.28Z"
+                        fill="url(#paint2_linear_2070_365)" stroke="#D1D5DB" stroke-width="2.56" />
+                </g>
+                <defs>
+                    <filter id="filter0_d_2070_365" x="0.800003" y="0.160003" width="358.4" height="422.4"
+                        filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                            result="hardAlpha" />
+                        <feOffset dy="15.36" />
+                        <feGaussianBlur stdDeviation="25.6" />
+                        <feComposite in2="hardAlpha" operator="out" />
+                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0" />
+                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2070_365" />
+                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2070_365" result="shape" />
+                    </filter>
+                    <linearGradient id="paint0_linear_2070_365" x1="90.72" y1="21.6" x2="180" y2="356"
+                        gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#F2F2F2" />
+                        <stop offset="1" stop-color="#F7F7F7" />
+                    </linearGradient>
+                    <linearGradient id="paint1_linear_2070_365" x1="180" y1="160" x2="180" y2="233.4"
+                        gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#FF4C6C" />
+                        <stop offset="1" stop-color="#FF244B" />
+                    </linearGradient>
+                    <linearGradient id="paint2_linear_2070_365" x1="52" y1="36" x2="92.96" y2="117.92"
+                        gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#F0F0F0" />
+                        <stop offset="1" stop-color="white" />
+                    </linearGradient>
+                </defs>
+            </svg>
+
+
+            <p>Drop Health Kit Export here</p>
+        </div>
+    </div>
+
     <form id="uploadForm" enctype="multipart/form-data">
-        <label for="xmlFile">Upload XML File:</label>
-        <input type="file" id="xmlFile" name="xmlFile" accept=".xml">
-        <button type="button" onclick="uploadFile()">Submit</button>
+        <!-- Hidden file input -->
+        <input type="file" id="xmlFile" name="xmlFile" accept=".xml" style="display: none">
     </form>
 
     <!-- Process indicator -->
@@ -23,13 +76,30 @@
     <section class="workouts" id="workouts"></section>
 
     <script>
+        function handleDragOver(event) {
+            event.preventDefault();
+            document.getElementById('uploadDrop').classList.add('hover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            document.getElementById('uploadDrop').classList.remove('hover');
+
+            const file = event.dataTransfer.files[0];
+            handleFile(file);
+        }
+
         function uploadFile() {
             const fileInput = document.getElementById('xmlFile');
             const file = fileInput.files[0];
 
+            handleFile(file);
+        }
+
+        function handleFile(file) {
             if (file) {
-                // Hide the form and show the loader
-                document.getElementById('uploadForm').style.display = 'none';
+                // Hide the drop area and show the loader
+                document.getElementById('uploadDrop').style.display = 'none';
                 document.getElementById('loader').style.display = 'block';
 
                 const formData = new FormData();
@@ -73,9 +143,10 @@
                     .catch(error => console.error('Error uploading file:', error))
                     .finally(() => {
                         // Show the form and hide the loader after processing
-                        document.getElementById('uploadForm').style.display = 'none';
+                        document.getElementById('uploadForm').style.display = 'block';
                         document.getElementById('loader').style.display = 'none';
-                    });
+                    })
+                    .catch(error => console.error('Error uploading file:', error));
             } else {
                 console.error('No file selected');
             }
