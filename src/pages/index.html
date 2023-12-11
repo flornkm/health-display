@@ -115,25 +115,46 @@
                                 const workoutItem = document.createElement('div');
                                 workoutItem.classList.add('workout-item');
 
+                                const workoutDataWrapper = document.createElement('div');
+                                workoutDataWrapper.classList.add('workout-data-wrapper');
+
                                 const workoutTitle = document.createElement('h2');
                                 workoutTitle.innerHTML = workout.$.sourceName;
                                 workoutTitle.classList.add('workout-title');
-                                workoutItem.appendChild(workoutTitle);
+                                workoutDataWrapper.appendChild(workoutTitle);
 
                                 const workoutDuration = document.createElement('div');
                                 workoutDuration.classList.add('workout-data');
                                 workoutDuration.innerHTML = `Duration: ${parseFloat(workout.$.duration).toFixed(2)} ${workout.$.durationUnit}`;
-                                workoutItem.appendChild(workoutDuration);
+                                workoutDataWrapper.appendChild(workoutDuration);
 
                                 const workoutCalories = document.createElement('div');
                                 workoutCalories.classList.add('workout-data');
                                 workoutCalories.innerHTML = `Calories burned: ${parseFloat(workout.WorkoutStatistics[0].$.sum).toFixed(2)} ${workout.WorkoutStatistics[0].$.unit}`;
-                                workoutItem.appendChild(workoutCalories);
+                                workoutDataWrapper.appendChild(workoutCalories);
 
-                                const workoutDistance = document.createElement('div');
-                                workoutDistance.classList.add('workout-data');
-                                workoutDistance.innerHTML = `Length: ${parseFloat(workout.WorkoutStatistics[1].$.sum).toFixed(2)} ${workout.WorkoutStatistics[1].$.unit}`;
-                                workoutItem.appendChild(workoutDistance);
+                                if (workout.WorkoutStatistics[1].$.unit === "km") {
+                                    const workoutDistance = document.createElement('div');
+                                    workoutDistance.classList.add('workout-data');
+                                    workoutDistance.innerHTML = `Length: ${parseFloat(workout.WorkoutStatistics[1].$.sum).toFixed(2)} ${workout.WorkoutStatistics[1].$.unit}`;
+                                    workoutDataWrapper.appendChild(workoutDistance);
+                                }
+
+                                const workoutDate = document.createElement('div');
+                                workoutDate.classList.add('workout-data');
+                                workoutDate.innerHTML = `Date: ${new Date(workout.$.startDate).toLocaleDateString()}`;
+                                workoutDataWrapper.appendChild(workoutDate);
+
+                                workoutItem.appendChild(workoutDataWrapper);
+
+                                const image = document.createElement('img');
+                                image.classList.add('workout-image');
+                                if (workout.$.sourceName === "Nike Run Club") {
+                                    image.src = "./assets/nrc.jpg";
+                                } else {
+                                    image.src = "./assets/apple-watch.jpg";
+                                }
+                                workoutItem.appendChild(image);
 
                                 workoutList.appendChild(workoutItem);
                             });
